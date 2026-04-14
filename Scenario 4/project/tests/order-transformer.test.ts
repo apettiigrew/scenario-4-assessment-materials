@@ -2,9 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {
   convertOuncesToPounds,
+  parseValidatedCustomerOrder,
   parseDimensions,
   transformOrder,
   transformOrderBatch,
+  validateOrder,
   validateRequiredOrderFields,
   ValidationError,
 } from '../src/index';
@@ -17,8 +19,32 @@ function readJson<T>(file: string): T {
   return JSON.parse(fs.readFileSync(p, 'utf-8')) as T;
 }
 
+function makeValidOrder() {
+  return {
+    orderNumber: 'ORD-BASE',
+    orderDate: '2026-01-15T10:00:00Z',
+    customer: {
+      custId: 'C1',
+      fullName: 'Test User',
+      email: 'test@example.com',
+      phone: '+12065551234',
+      shippingAddr: {
+        street1: '1 Main',
+        city: 'Seattle',
+        state: 'WA',
+        zip: '98101',
+        country: 'US',
+      },
+    },
+    items: [{ sku: 'SKU1', description: 'Item', qty: 1, weight_oz: 16, dims: '10x8x6' }],
+    shipFromWarehouse: 'DC-1',
+    requestedShipDate: '2026-01-16',
+    serviceLevel: 'GROUND',
+  };
+}
+
 describe('transformOrder', () => {
-  describe('golden paths from scenario_4_sample_orders.json', () => {
+  describe('Happy Path - golden fixtures from scenario_4_sample_orders.json', () => {
     const data = readJson<{ sample_orders: Array<{ name: string; order: unknown; expected_output?: unknown }> }>(
       'scenario_4_sample_orders.json'
     );
@@ -84,7 +110,7 @@ describe('transformOrder', () => {
     });
   });
 
-  describe('documented happy paths (scenario_4_test_cases.md excerpts)', () => {
+  describe('Happy Path - documented cases from scenario_4_test_cases.md excerpts', () => {
     const complete = {
       orderNumber: 'ORD-2026-001',
       orderDate: '2026-01-15T10:30:00Z',
@@ -118,6 +144,9 @@ describe('transformOrder', () => {
     it('transforms complete order successfully', () => {
       const result = transformOrder(complete as never);
       expect(result.external_order_id).toBe('ORD-2026-001');
+      expect(result.order_placed_ts).toBe('2026-01-15T10:30:00Z');
+      expect(result.destination_address.name).toBe('John Smith');
+      expect(result.destination_address.postal_code).toBe('98101');
       expect(result.items[0].weight.value).toBe(1);
       expect(result.destination_address.street2).toBe('Apt 4');
     });
@@ -187,7 +216,7 @@ describe('transformOrder', () => {
     });
   });
 
-  describe('scenario_4_edge_cases.json', () => {
+  describe('Edge Cases - scenario_4_edge_cases.json', () => {
     const { edge_cases } = readJson<{
       edge_cases: Array<{
         case_name: string;
@@ -256,7 +285,7 @@ describe('transformOrder', () => {
     });
   });
 
-  describe('validation errors (explicit messages)', () => {
+  describe('Validation Errors - explicit messages', () => {
     const base = {
       orderNumber: 'ORD-X',
       orderDate: '2026-01-15T10:00:00Z',
@@ -335,6 +364,21 @@ describe('transformOrder', () => {
           items: [{ ...base.items[0], dims: undefined }],
         } as never)
       ).toThrow('Missing required field: items[0].dimensions');
+    });
+
+    it('ignores unknown item.attributes field', () => {
+      const result = transformOrder({
+        ...base,
+        items: [
+          {
+            ...base.items[0],
+            attributes: { color: 'red', size: 'M' },
+          },
+        ],
+      } as never);
+
+      expect(result.items[0].external_line_item_id).toBe('S');
+      expect(result.items[0].quantity).toBe(1);
     });
 
     it('throws for negative quantity', () => {
@@ -489,9 +533,112 @@ describe('validateRequiredOrderFields', () => {
       })
     ).not.toThrow();
   });
+
+  it('throws for non-object order payload', () => {
+    expect(() => validateRequiredOrderFields(null)).toThrow(
+      'Invalid order: expected a non-null object'
+    );
+  });
+
+  it('throws for non-object line item payload', () => {
+    const base = makeValidOrder();
+    expect(() =>
+      validateRequiredOrderFields({
+        ...base,
+        items: ['bad-item'],
+      })
+    ).toThrow('Invalid items[0]: expected an object');
+  });
 });
 
-describe('convertOuncesToPounds', () => {
+describe('Validation Helpers', () => {
+  it('validateOrder passes for a valid normalized order', () => {
+    expect(() => validateOrder(makeValidOrder() as never)).not.toThrow();
+  });
+
+  it('parseValidatedCustomerOrder maps undefined type issues to missing field messages', () => {
+    const bad = makeValidOrder() as Record<string, unknown>;
+    delete bad.customer;
+    expect(() => parseValidatedCustomerOrder(bad)).toThrow(
+      'Missing required field: customer'
+    );
+  });
+
+  it('throws for invalid country code', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        customer: {
+          ...makeValidOrder().customer,
+          shippingAddr: {
+            ...makeValidOrder().customer.shippingAddr,
+            country: 'USA',
+          },
+        },
+      } as never)
+    ).toThrow('Invalid country: must be ISO 3166-1 alpha-2');
+  });
+
+  it('throws for invalid US state length', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        customer: {
+          ...makeValidOrder().customer,
+          shippingAddr: {
+            ...makeValidOrder().customer.shippingAddr,
+            state: 'Washington',
+          },
+        },
+      } as never)
+    ).toThrow('Invalid state: must be a 2-character code for US/CA addresses');
+  });
+
+  it('throws when quantity is not numeric', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        items: [{ ...makeValidOrder().items[0], qty: 'abc' }],
+      } as never)
+    ).toThrow('Expected number, received string');
+  });
+
+  it('throws when weight is not numeric', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        items: [{ ...makeValidOrder().items[0], weight_oz: 'abc' }],
+      } as never)
+    ).toThrow('Expected number, received string');
+  });
+
+  it('throws when price is not numeric', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        items: [{ ...makeValidOrder().items[0], price: Number.NaN }],
+      } as never)
+    ).toThrow('Expected number, received nan');
+  });
+
+  it('throws for missing postal code on non-US/CA country', () => {
+    expect(() =>
+      transformOrder({
+        ...makeValidOrder(),
+        customer: {
+          ...makeValidOrder().customer,
+          shippingAddr: {
+            ...makeValidOrder().customer.shippingAddr,
+            country: 'GB',
+            zip: '',
+          },
+        },
+      } as never)
+    ).toThrow('Missing required field: customer.shippingAddr.zip');
+  });
+});
+
+describe('Weight & Dimension Conversions - convertOuncesToPounds', () => {
   it.each([
     [8, 0.5],
     [16, 1.0],
@@ -503,7 +650,7 @@ describe('convertOuncesToPounds', () => {
   });
 });
 
-describe('parseDimensions', () => {
+describe('Weight & Dimension Conversions - parseDimensions', () => {
   it.each([
     ['10x8x6', { length: 10, width: 8, height: 6 }],
     ['10 x 8 x 6', { length: 10, width: 8, height: 6 }],
