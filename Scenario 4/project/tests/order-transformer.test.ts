@@ -5,6 +5,7 @@ import {
   parseDimensions,
   transformOrder,
   transformOrderBatch,
+  validateRequiredOrderFields,
   ValidationError,
 } from '../src/index';
 
@@ -288,6 +289,54 @@ describe('transformOrder', () => {
       ).toThrow('Order must have at least one item');
     });
 
+    it('throws for missing shippingAddr object', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          customer: {
+            ...base.customer,
+            shippingAddr: undefined,
+          },
+        } as never)
+      ).toThrow('Missing required field: customer.shippingAddr');
+    });
+
+    it('throws for missing item sku', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          items: [{ ...base.items[0], sku: undefined }],
+        } as never)
+      ).toThrow('Missing required field: items[0].sku');
+    });
+
+    it('throws for missing item quantity', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          items: [{ ...base.items[0], qty: undefined }],
+        } as never)
+      ).toThrow('Missing required field: items[0].quantity');
+    });
+
+    it('throws for missing item weight', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          items: [{ ...base.items[0], weight_oz: undefined }],
+        } as never)
+      ).toThrow('Missing required field: items[0].weight');
+    });
+
+    it('throws for missing item dimensions', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          items: [{ ...base.items[0], dims: undefined }],
+        } as never)
+      ).toThrow('Missing required field: items[0].dimensions');
+    });
+
     it('throws for negative quantity', () => {
       expect(() =>
         transformOrder({
@@ -351,6 +400,15 @@ describe('transformOrder', () => {
       ).toThrow('Invalid email format');
     });
 
+    it('throws for invalid phone', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          customer: { ...base.customer, phone: 'invalid-phone' },
+        } as never)
+      ).toThrow('Invalid phone format');
+    });
+
     it('throws for invalid US postal code', () => {
       expect(() =>
         transformOrder({
@@ -375,6 +433,15 @@ describe('transformOrder', () => {
       ).toThrow('Invalid requestedShipDate');
     });
 
+    it('throws for negative price', () => {
+      expect(() =>
+        transformOrder({
+          ...base,
+          items: [{ ...base.items[0], price: -1 }],
+        } as never)
+      ).toThrow('Price must be greater than or equal to 0');
+    });
+
     it('allows non-2-char state outside US and CA', () => {
       expect(() =>
         transformOrder({
@@ -391,6 +458,36 @@ describe('transformOrder', () => {
         } as never)
       ).not.toThrow();
     });
+  });
+});
+
+describe('validateRequiredOrderFields', () => {
+  it('accepts alternate quantity, weight, and dimensions field names', () => {
+    expect(() =>
+      validateRequiredOrderFields({
+        orderNumber: 'ALT-1',
+        orderDate: '2026-01-15T10:00:00Z',
+        customer: {
+          custId: 'C1',
+          fullName: 'Test',
+          shippingAddr: {
+            street1: '1 Main',
+            city: 'City',
+            state: 'CA',
+            zip: '90001',
+            country: 'US',
+          },
+        },
+        items: [
+          {
+            sku: 'SKU-1',
+            quantity: 1,
+            weight: 16,
+            dimensions: '10x8x6',
+          },
+        ],
+      })
+    ).not.toThrow();
   });
 });
 

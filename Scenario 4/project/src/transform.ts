@@ -2,7 +2,10 @@ import { convertOuncesToPounds, parseDimensions } from './conversions';
 import { ValidationError } from './errors';
 import { normalizeCustomerOrder } from './normalize';
 import type { BatchResult, CustomerOrder, ShipiumOrder } from './types';
-import { validateOrder } from './validation';
+import {
+  parseValidatedCustomerOrder,
+  validateRequiredOrderFields,
+} from './validation';
 
 function buildDestinationAddress(order: CustomerOrder): ShipiumOrder['destination_address'] {
   const address = order.customer.shippingAddr;
@@ -40,19 +43,20 @@ function mapItems(order: CustomerOrder): ShipiumOrder['items'] {
  * Converts a single customer OMS order into Shipium API format.
  */
 export function transformOrder(customerOrder: CustomerOrder): ShipiumOrder {
+  validateRequiredOrderFields(customerOrder as unknown);
   const normalized = normalizeCustomerOrder(customerOrder);
-  validateOrder(normalized);
+  const order = parseValidatedCustomerOrder(normalized);
 
   return {
-    external_order_id: normalized.orderNumber,
-    order_placed_ts: normalized.orderDate,
-    destination_address: buildDestinationAddress(normalized),
-    items: mapItems(normalized),
+    external_order_id: order.orderNumber,
+    order_placed_ts: order.orderDate,
+    destination_address: buildDestinationAddress(order),
+    items: mapItems(order),
     origin_address: {
-      facility_alias: normalized.shipFromWarehouse,
+      facility_alias: order.shipFromWarehouse,
     },
     ship_option: {
-      service_level: normalized.serviceLevel,
+      service_level: order.serviceLevel,
     },
   };
 }
