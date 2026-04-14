@@ -1,74 +1,80 @@
-# Scenario 4 — OMS to Shipium order transformer
+# Scenario 4: OMS to Shipium order transformer
 
-TypeScript library that validates customer OMS orders and maps them to the Shipium order JSON shape (field renames, ounces to pounds, `LxWxH` dimension parsing, optional field omission).
+TypeScript library that validates customer OMS orders, normalizes common data-quality issues, and maps them to the Shipium API order shape used in the assessment scenario.
 
-## Prerequisites
+## How to run the code
 
-- Node.js 18+ (tested with Node 22)
+**Prerequisites:** Node.js 18+ and npm.
 
-## Install
+1. Install dependencies (from this directory):
 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
-## Build
+2. Compile TypeScript to `dist/`:
 
-```bash
-npm run build
-```
+   ```bash
+   npm run build
+   ```
 
-Compiled output is written to `dist/`.
+3. Use the compiled package from another Node project, or import from source in tests/tools:
 
-## Run tests
+   ```typescript
+   import { transformOrder } from 'scenario-4-order-transformer';
+   // or, during local development from this repo:
+   import { transformOrder } from './src/index';
+   ```
+
+   Example:
+
+   ```typescript
+   import { transformOrder } from './dist/index.js';
+
+   const shipiumOrder = transformOrder(customerOrder);
+   console.log(JSON.stringify(shipiumOrder, null, 2));
+   ```
+
+There is no bundled CLI; the public API is the exported functions in `src/index.ts` (see **Design decisions**).
+
+## How to run tests
+
+From this directory:
 
 ```bash
 npm test
 ```
 
-Coverage report:
+Coverage report (statements/lines/functions thresholds are configured in `jest.config.js`):
 
 ```bash
 npm run test:coverage
 ```
 
-## API
-
-- `transformOrder(customerOrder: CustomerOrder): ShipiumOrder` — validates then transforms; throws `ValidationError` on invalid input.
-- `transformOrderBatch` / `transformOrders` (alias) — runs `transformOrder` per row; failures are collected with `error` message strings without stopping the batch.
-- `validateOrder`, `convertOuncesToPounds`, `parseDimensions`, `normalizeCustomerOrder` — exported for focused tests or reuse.
+Tests load shared fixtures from the parent folder (`../scenario_4_sample_orders.json`, `../scenario_4_edge_cases.json`, etc.), so run commands from `Scenario 4/project/` as above.
 
 ## Design decisions
 
-1. **Normalize then validate** — All string fields are trimmed first (`normalizeCustomerOrder`). Optional strings that become empty (`email`, `street2`) are treated as absent so the Shipium payload omits those keys (no `null`).
-2. **Country and state** — `country` is uppercased on output. For `US` and `CA`, `state` must be exactly two characters after trim; other countries allow longer province names.
-3. **Postal codes** — `US`: `12345` or `12345-6789`. `CA`: spaced or compact Canadian postal forms. Other countries: any non-empty trimmed `zip`.
-4. **Dimensions** — Split on `x` with surrounding whitespace allowed (including tabs). Exactly three positive finite numbers required.
-5. **Weights** — `pounds = ounces / 16` with full float precision (tests use `toBeCloseTo` where needed).
+- **Pipeline:** `validateRequiredOrderFields` (structural checks on raw input) → `normalizeCustomerOrder` (trim strings, optional field cleanup, field aliases) → `parseValidatedCustomerOrder` / Zod `customerOrderSchema` (formats and business rules) → `transformOrder` mapping to `ShipiumOrder`.
+- **Validation library:** Zod for the normalized order schema, plus a small Zod `superRefine` layer for required keys before normalization so missing `customer` / `items` cannot be masked by defaults.
+- **Errors:** Failures throw `ValidationError` with messages intended to name the field or constraint (e.g. `Missing required field: orderNumber`, `Invalid postal code format for country US`).
+- **Batch API:** `transformOrderBatch` / `transformOrders` collect per-order failures and continue processing.
+- **Dimensions:** Parsed in `parseDimensions` with a flexible `L x W x H` splitter (spaces/tabs allowed around `x`).
+- **Weights:** Ounces to pounds via `ounces / 16` with floating-point math (no integer division).
 
-## Assumptions (spec gaps)
+## Assumptions made
 
-- **Email in output** — Instructions mention mapping email to contact info, but the provided Shipium schema and golden JSON have no recipient email field. This implementation **only validates** email when it is present; it is not copied onto `ShipiumOrder`.
-- **Phone** — Not present in the supplied OMS examples; `customer.phone` is optional in types but unused. No normalization implemented.
-- **Line item price** — Instructions mention `price >= 0`, but the OMS schema and fixtures include no `price` field; no price validation is implemented.
+- **Node + npm** are the intended runtime and package manager for the reference implementation.
+- **Input shape** matches the Scenario 4 materials: `orderNumber`, `orderDate`, `customer`, `items`, `shipFromWarehouse`, `requestedShipDate`, `serviceLevel`, and nested `shippingAddr` / line items as in `scenario_4_instructions.md` and sample JSON.
+- **Line item fields** are primarily `sku`, `description`, `qty`, `weight_oz`, `dims`; optional aliases `quantity`, `weight`, `dimensions` are accepted at the structural validation and normalization layer.
+- **Output shape** matches the Shipium payload described in the scenario (e.g. `external_order_id`, `destination_address`, `items[].weight` in lb, `items[].dimensions` in inches).
+- **Dates:** `orderDate` is validated as parseable by `Date.parse`; `requestedShipDate` must be `YYYY-MM-DD`.
 
-## Optional AWS Lambda wrapper
+## Known limitations
 
-See [deployment/lambda-handler.example.ts](deployment/lambda-handler.example.ts) for a minimal pattern (API Gateway proxy integration): parse JSON body, call `transformOrder`, return 200 or 400 with the validation message.
-
-## Fixture JSON files
-
-Jest tests load `scenario_4_sample_orders.json` and `scenario_4_edge_cases.json` from the **parent directory** (`../` relative to this `project/` folder), where the assessment materials live alongside this code.
-
-## Project layout
-
-| Path | Purpose |
-|------|---------|
-| `src/types.ts` | Input/output interfaces |
-| `src/errors.ts` | `ValidationError` |
-| `src/normalize.ts` | Deep string trim / optional clearing |
-| `src/validation.ts` | Rules and descriptive errors |
-| `src/conversions.ts` | Weight and dimension parsing |
-| `src/transform.ts` | `transformOrder` / `transformOrderBatch` |
-| `src/index.ts` | Public exports |
-| `tests/order-transformer.test.ts` | Jest suite (fixtures from this folder) |
+- **No first-class CLI** in this package; integrate via `import` or a small wrapper script in your app.
+- **Unknown fields** on line items (e.g. `attributes`) are not mapped to Shipium output; they are ignored after validation/normalization (Zod strips unknown keys on the item object schema).
+- **Item count cap:** The scenario mentions up to 100 items; the implementation enforces at least one item but does not reject orders with more than 100 lines.
+- **Phone validation** uses a pragmatic digit-count check after stripping formatting; it may differ from a strict literal regex in the written scenario spec.
+- **Postal codes:** US and CA formats are validated strictly; other countries accept non-empty zip strings without format-specific rules beyond “present when required by other rules.”
+- **Coverage:** Branch coverage can be lower than line coverage while still meeting global thresholds; see `jest --coverage` output for per-file detail.
