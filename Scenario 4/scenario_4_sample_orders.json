@@ -1,0 +1,447 @@
+{
+  "sample_orders": [
+    {
+      "name": "Simple Order - Single Item",
+      "order": {
+        "orderNumber": "ORD-2026-001",
+        "orderDate": "2026-01-14T10:30:00Z",
+        "customer": {
+          "custId": "CUST-123",
+          "fullName": "John Smith",
+          "email": "john.smith@example.com",
+          "shippingAddr": {
+            "street1": "123 Main St",
+            "street2": "Apt 4",
+            "city": "Seattle",
+            "state": "WA",
+            "zip": "98101",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "WIDGET-001",
+            "description": "Blue Widget",
+            "qty": 2,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-WEST-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_output": {
+        "external_order_id": "ORD-2026-001",
+        "order_placed_ts": "2026-01-14T10:30:00Z",
+        "destination_address": {
+          "name": "John Smith",
+          "street1": "123 Main St",
+          "street2": "Apt 4",
+          "city": "Seattle",
+          "state": "WA",
+          "postal_code": "98101",
+          "country": "US"
+        },
+        "items": [
+          {
+            "external_line_item_id": "WIDGET-001",
+            "description": "Blue Widget",
+            "quantity": 2,
+            "weight": {
+              "value": 1.0,
+              "unit": "lb"
+            },
+            "dimensions": {
+              "length": 10,
+              "width": 8,
+              "height": 6,
+              "unit": "in"
+            }
+          }
+        ],
+        "origin_address": {
+          "facility_alias": "DC-WEST-01"
+        },
+        "ship_option": {
+          "service_level": "GROUND"
+        }
+      }
+    },
+    {
+      "name": "Multiple Items Order",
+      "order": {
+        "orderNumber": "ORD-2026-002",
+        "orderDate": "2026-01-14T11:45:00Z",
+        "customer": {
+          "custId": "CUST-456",
+          "fullName": "Jane Doe",
+          "email": "jane.doe@example.com",
+          "shippingAddr": {
+            "street1": "456 Oak Avenue",
+            "city": "Portland",
+            "state": "OR",
+            "zip": "97201",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "PROD-A-001",
+            "description": "Red Gadget",
+            "qty": 1,
+            "weight_oz": 24,
+            "dims": "12x10x8"
+          },
+          {
+            "sku": "PROD-B-002",
+            "description": "Green Widget",
+            "qty": 3,
+            "weight_oz": 8,
+            "dims": "6x6x4"
+          },
+          {
+            "sku": "PROD-C-003",
+            "description": "Yellow Doohickey",
+            "qty": 1,
+            "weight_oz": 32,
+            "dims": "14x12x10"
+          }
+        ],
+        "shipFromWarehouse": "DC-WEST-02",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "2-DAY"
+      },
+      "expected_output": {
+        "external_order_id": "ORD-2026-002",
+        "order_placed_ts": "2026-01-14T11:45:00Z",
+        "destination_address": {
+          "name": "Jane Doe",
+          "street1": "456 Oak Avenue",
+          "city": "Portland",
+          "state": "OR",
+          "postal_code": "97201",
+          "country": "US"
+        },
+        "items": [
+          {
+            "external_line_item_id": "PROD-A-001",
+            "description": "Red Gadget",
+            "quantity": 1,
+            "weight": {
+              "value": 1.5,
+              "unit": "lb"
+            },
+            "dimensions": {
+              "length": 12,
+              "width": 10,
+              "height": 8,
+              "unit": "in"
+            }
+          },
+          {
+            "external_line_item_id": "PROD-B-002",
+            "description": "Green Widget",
+            "quantity": 3,
+            "weight": {
+              "value": 0.5,
+              "unit": "lb"
+            },
+            "dimensions": {
+              "length": 6,
+              "width": 6,
+              "height": 4,
+              "unit": "in"
+            }
+          },
+          {
+            "external_line_item_id": "PROD-C-003",
+            "description": "Yellow Doohickey",
+            "quantity": 1,
+            "weight": {
+              "value": 2.0,
+              "unit": "lb"
+            },
+            "dimensions": {
+              "length": 14,
+              "width": 12,
+              "height": 10,
+              "unit": "in"
+            }
+          }
+        ],
+        "origin_address": {
+          "facility_alias": "DC-WEST-02"
+        },
+        "ship_option": {
+          "service_level": "2-DAY"
+        }
+      }
+    },
+    {
+      "name": "Missing Optional Fields",
+      "order": {
+        "orderNumber": "ORD-2026-003",
+        "orderDate": "2026-01-14T13:00:00Z",
+        "customer": {
+          "custId": "CUST-789",
+          "fullName": "Bob Johnson",
+          "shippingAddr": {
+            "street1": "789 Pine Street",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94102",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "ITEM-XYZ",
+            "description": "Purple Thing",
+            "qty": 1,
+            "weight_oz": 20,
+            "dims": "8x8x8"
+          }
+        ],
+        "shipFromWarehouse": "DC-WEST-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "note": "Missing email and street2"
+    },
+    {
+      "name": "Decimal Weight",
+      "order": {
+        "orderNumber": "ORD-2026-004",
+        "orderDate": "2026-01-14T14:20:00Z",
+        "customer": {
+          "custId": "CUST-111",
+          "fullName": "Alice Williams",
+          "email": "alice@example.com",
+          "shippingAddr": {
+            "street1": "111 Maple Drive",
+            "city": "Austin",
+            "state": "TX",
+            "zip": "78701",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "LIGHT-ITEM",
+            "description": "Feather Light Product",
+            "qty": 1,
+            "weight_oz": 12.5,
+            "dims": "5x4x3"
+          }
+        ],
+        "shipFromWarehouse": "DC-CENTRAL-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "OVERNIGHT"
+      },
+      "note": "Weight is 12.5 oz = 0.78125 lb"
+    },
+    {
+      "name": "Dimensions with Spaces",
+      "order": {
+        "orderNumber": "ORD-2026-005",
+        "orderDate": "2026-01-14T15:30:00Z",
+        "customer": {
+          "custId": "CUST-222",
+          "fullName": "Charlie Brown",
+          "email": "charlie@example.com",
+          "shippingAddr": {
+            "street1": "222 Elm Street",
+            "street2": "Suite 100",
+            "city": "Denver",
+            "state": "CO",
+            "zip": "80202",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "BIG-BOX",
+            "description": "Large Box",
+            "qty": 1,
+            "weight_oz": 48,
+            "dims": "20 x 16 x 12"
+          }
+        ],
+        "shipFromWarehouse": "DC-CENTRAL-02",
+        "requestedShipDate": "2026-01-16",
+        "serviceLevel": "GROUND"
+      },
+      "note": "Dimension string has spaces around 'x'"
+    },
+    {
+      "name": "Canadian Address",
+      "order": {
+        "orderNumber": "ORD-2026-006",
+        "orderDate": "2026-01-14T16:00:00Z",
+        "customer": {
+          "custId": "CUST-333",
+          "fullName": "David Smith",
+          "email": "david@example.ca",
+          "shippingAddr": {
+            "street1": "123 Yonge Street",
+            "street2": "Unit 5",
+            "city": "Toronto",
+            "state": "ON",
+            "zip": "M5B 2H1",
+            "country": "CA"
+          }
+        },
+        "items": [
+          {
+            "sku": "CANADA-001",
+            "description": "Maple Syrup",
+            "qty": 2,
+            "weight_oz": 40,
+            "dims": "10x6x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-CANADA-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "note": "Canadian postal code format"
+    },
+    {
+      "name": "Heavy Item",
+      "order": {
+        "orderNumber": "ORD-2026-007",
+        "orderDate": "2026-01-14T17:15:00Z",
+        "customer": {
+          "custId": "CUST-444",
+          "fullName": "Emma Davis",
+          "email": "emma@example.com",
+          "shippingAddr": {
+            "street1": "444 Broadway",
+            "city": "New York",
+            "state": "NY",
+            "zip": "10012",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "HEAVY-001",
+            "description": "Heavy Equipment",
+            "qty": 1,
+            "weight_oz": 320,
+            "dims": "24x24x18"
+          }
+        ],
+        "shipFromWarehouse": "DC-EAST-01",
+        "requestedShipDate": "2026-01-16",
+        "serviceLevel": "FREIGHT"
+      },
+      "note": "320 oz = 20 lbs"
+    },
+    {
+      "name": "Small Dimensions",
+      "order": {
+        "orderNumber": "ORD-2026-008",
+        "orderDate": "2026-01-14T18:30:00Z",
+        "customer": {
+          "custId": "CUST-555",
+          "fullName": "Frank Martinez",
+          "email": "frank@example.com",
+          "shippingAddr": {
+            "street1": "555 Market Street",
+            "city": "San Diego",
+            "state": "CA",
+            "zip": "92101",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TINY-001",
+            "description": "Jewelry Item",
+            "qty": 1,
+            "weight_oz": 2,
+            "dims": "2x2x1"
+          }
+        ],
+        "shipFromWarehouse": "DC-WEST-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "OVERNIGHT"
+      },
+      "note": "2 oz = 0.125 lb"
+    },
+    {
+      "name": "Mixed Case and Whitespace",
+      "order": {
+        "orderNumber": " ORD-2026-009 ",
+        "orderDate": "2026-01-14T19:00:00Z",
+        "customer": {
+          "custId": "CUST-666",
+          "fullName": "  Grace Lee  ",
+          "email": " grace@example.com ",
+          "shippingAddr": {
+            "street1": " 666 Ocean Drive ",
+            "street2": " Apt 12A ",
+            "city": " Miami ",
+            "state": " FL ",
+            "zip": " 33139 ",
+            "country": " us "
+          }
+        },
+        "items": [
+          {
+            "sku": " MESSY-DATA ",
+            "description": " Product with Spaces ",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": " 10 x 8 x 6 "
+          }
+        ],
+        "shipFromWarehouse": " DC-SOUTH-01 ",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": " GROUND "
+      },
+      "note": "Contains extra whitespace and lowercase country code"
+    },
+    {
+      "name": "Multiple Quantities",
+      "order": {
+        "orderNumber": "ORD-2026-010",
+        "orderDate": "2026-01-14T20:00:00Z",
+        "customer": {
+          "custId": "CUST-777",
+          "fullName": "Henry Wilson",
+          "email": "henry@example.com",
+          "shippingAddr": {
+            "street1": "777 Park Avenue",
+            "city": "Chicago",
+            "state": "IL",
+            "zip": "60601",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "BULK-ITEM",
+            "description": "Bulk Package",
+            "qty": 10,
+            "weight_oz": 16,
+            "dims": "12x10x8"
+          }
+        ],
+        "shipFromWarehouse": "DC-CENTRAL-01",
+        "requestedShipDate": "2026-01-16",
+        "serviceLevel": "GROUND"
+      },
+      "note": "High quantity item"
+    }
+  ],
+  "notes": {
+    "weight_conversion": "All weights in customer format are in ounces. Divide by 16 to get pounds.",
+    "dimension_parsing": "Parse 'LxWxH' format. Handle spaces around 'x'. All dimensions are in inches.",
+    "optional_fields": "email and street2 are optional. Handle gracefully when missing.",
+    "whitespace": "Trim all string values to handle messy data.",
+    "country_codes": "Normalize to uppercase (US, CA, etc.)"
+  }
+}

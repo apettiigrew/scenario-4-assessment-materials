@@ -1,0 +1,590 @@
+{
+  "sample_orders": [
+    {
+      "description": "Standard E-commerce Order - Single Item",
+      "order": {
+        "order_id": "ORD-2026-001234",
+        "order_number": "WEB-20260108-5678",
+        "type": "ecommerce",
+        "status": "pending",
+        "priority": "standard",
+        "created_at": "2026-01-08T10:30:00Z",
+        "updated_at": "2026-01-08T10:35:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-WEST-01",
+          "warehouse_name": "Seattle Distribution Center",
+          "requested_ship_date": "2026-01-09",
+          "shipping_method": "ground"
+        },
+        "customer": {
+          "id": "CUST-789456",
+          "email": "john.smith@example.com",
+          "phone": "+1-206-555-0123"
+        },
+        "shipping_address": {
+          "name": "John Smith",
+          "company": null,
+          "address1": "123 Main St",
+          "address2": "Apt 4",
+          "city": "Seattle",
+          "state": "WA",
+          "postal_code": "98101",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "John Smith",
+          "address1": "123 Main St",
+          "address2": "Apt 4",
+          "city": "Seattle",
+          "state": "WA",
+          "postal_code": "98101",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-12345",
+            "name": "Blue Widget",
+            "quantity": 2,
+            "unit_price": 49.99,
+            "weight_oz": 16,
+            "dimensions": {
+              "length_in": 10,
+              "width_in": 8,
+              "height_in": 6
+            },
+            "attributes": {
+              "fragile": false,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 99.98,
+          "tax": 9.00,
+          "shipping": 0.00,
+          "discount": 0.00,
+          "total": 108.98
+        },
+        "metadata": {
+          "source": "web",
+          "is_gift": false,
+          "gift_message": null,
+          "promo_code": null,
+          "customer_notes": null,
+          "internal_notes": null
+        }
+      }
+    },
+    {
+      "description": "Gift Order - Multiple Items",
+      "order": {
+        "order_id": "ORD-2026-001235",
+        "order_number": "WEB-20260108-5679",
+        "type": "gift",
+        "status": "pending",
+        "priority": "standard",
+        "created_at": "2026-01-08T11:15:00Z",
+        "updated_at": "2026-01-08T11:15:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-EAST-01",
+          "warehouse_name": "New Jersey Distribution Center",
+          "requested_ship_date": "2026-01-09",
+          "shipping_method": "2-day"
+        },
+        "customer": {
+          "id": "CUST-445566",
+          "email": "sarah.johnson@example.com",
+          "phone": "+1-201-555-0199"
+        },
+        "shipping_address": {
+          "name": "Michael Brown",
+          "company": null,
+          "address1": "456 Oak Avenue",
+          "address2": null,
+          "city": "Boston",
+          "state": "MA",
+          "postal_code": "02101",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "Sarah Johnson",
+          "address1": "789 Elm Street",
+          "city": "New York",
+          "state": "NY",
+          "postal_code": "10001",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-78901",
+            "name": "Luxury Sweater",
+            "quantity": 1,
+            "unit_price": 89.99,
+            "weight_oz": 12,
+            "dimensions": {
+              "length_in": 14,
+              "width_in": 12,
+              "height_in": 2
+            },
+            "attributes": {
+              "fragile": false,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          },
+          {
+            "line_item_id": "LINE-002",
+            "sku": "PROD-78902",
+            "name": "Scented Candle Set",
+            "quantity": 1,
+            "unit_price": 34.99,
+            "weight_oz": 24,
+            "dimensions": {
+              "length_in": 8,
+              "width_in": 6,
+              "height_in": 4
+            },
+            "attributes": {
+              "fragile": true,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 124.98,
+          "tax": 11.25,
+          "shipping": 12.99,
+          "discount": 0.00,
+          "total": 149.22
+        },
+        "metadata": {
+          "source": "web",
+          "is_gift": true,
+          "gift_message": "Happy Birthday! Love, Sarah",
+          "gift_wrap_requested": true,
+          "promo_code": null,
+          "customer_notes": "Please include gift receipt",
+          "internal_notes": null
+        }
+      }
+    },
+    {
+      "description": "B2B Bulk Order",
+      "order": {
+        "order_id": "ORD-2026-001236",
+        "order_number": "B2B-20260108-1001",
+        "type": "b2b",
+        "status": "pending",
+        "priority": "standard",
+        "created_at": "2026-01-08T09:00:00Z",
+        "updated_at": "2026-01-08T09:00:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-CENTRAL-01",
+          "warehouse_name": "Dallas Distribution Center",
+          "requested_ship_date": "2026-01-10",
+          "shipping_method": "ltl-freight"
+        },
+        "customer": {
+          "id": "CUST-B2B-123",
+          "email": "orders@smallretailer.com",
+          "phone": "+1-214-555-0888"
+        },
+        "shipping_address": {
+          "name": "Small Retailer Inc",
+          "company": "Small Retailer Inc",
+          "address1": "1000 Industrial Parkway",
+          "address2": "Loading Dock B",
+          "city": "Austin",
+          "state": "TX",
+          "postal_code": "78701",
+          "country": "US",
+          "is_residential": false
+        },
+        "billing_address": {
+          "name": "Small Retailer Inc",
+          "company": "Small Retailer Inc",
+          "address1": "1000 Industrial Parkway",
+          "city": "Austin",
+          "state": "TX",
+          "postal_code": "78701",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-BULK-456",
+            "name": "Blue Widget - Bulk Pack (50 units)",
+            "quantity": 10,
+            "unit_price": 450.00,
+            "weight_oz": 800,
+            "dimensions": {
+              "length_in": 24,
+              "width_in": 18,
+              "height_in": 12
+            },
+            "attributes": {
+              "fragile": false,
+              "hazmat": false,
+              "temperature_controlled": false,
+              "bulk_item": true
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 4500.00,
+          "tax": 371.25,
+          "shipping": 125.00,
+          "discount": 225.00,
+          "total": 4771.25
+        },
+        "metadata": {
+          "source": "b2b_portal",
+          "is_gift": false,
+          "po_number": "PO-2026-B2B-5678",
+          "customer_notes": "Deliver Monday-Friday 8am-4pm only",
+          "internal_notes": "Wholesale account - Net 30 terms",
+          "payment_terms": "net_30"
+        }
+      }
+    },
+    {
+      "description": "Marketplace Order (Amazon)",
+      "order": {
+        "order_id": "ORD-2026-001237",
+        "order_number": "AMZ-20260108-9876",
+        "type": "marketplace",
+        "status": "pending",
+        "priority": "high",
+        "created_at": "2026-01-08T12:45:00Z",
+        "updated_at": "2026-01-08T12:45:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-SOUTH-01",
+          "warehouse_name": "Atlanta Distribution Center",
+          "requested_ship_date": "2026-01-09",
+          "shipping_method": "prime-2day"
+        },
+        "customer": {
+          "id": "CUST-AMZ-789012",
+          "email": "amazon-marketplace@retailco.com",
+          "phone": null
+        },
+        "shipping_address": {
+          "name": "Lisa Anderson",
+          "company": null,
+          "address1": "321 Pine Street",
+          "address2": "Unit 5B",
+          "city": "Miami",
+          "state": "FL",
+          "postal_code": "33101",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "Amazon Marketplace",
+          "company": "Amazon.com",
+          "address1": "410 Terry Avenue North",
+          "city": "Seattle",
+          "state": "WA",
+          "postal_code": "98109",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-34567",
+            "name": "Premium Headphones",
+            "quantity": 1,
+            "unit_price": 149.99,
+            "weight_oz": 18,
+            "dimensions": {
+              "length_in": 9,
+              "width_in": 8,
+              "height_in": 4
+            },
+            "attributes": {
+              "fragile": true,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 149.99,
+          "tax": 11.25,
+          "shipping": 0.00,
+          "discount": 0.00,
+          "total": 161.24
+        },
+        "metadata": {
+          "source": "amazon",
+          "marketplace_order_id": "111-7654321-1234567",
+          "fulfillment_channel": "MFN",
+          "is_prime": true,
+          "is_gift": false,
+          "customer_notes": null,
+          "internal_notes": "Amazon Prime - must ship within 24h",
+          "sla_deadline": "2026-01-09T17:00:00Z"
+        }
+      }
+    },
+    {
+      "description": "Retail Store Order - Ship to Customer",
+      "order": {
+        "order_id": "ORD-2026-001238",
+        "order_number": "STORE-001-20260108",
+        "type": "retail",
+        "status": "pending",
+        "priority": "standard",
+        "created_at": "2026-01-08T14:20:00Z",
+        "updated_at": "2026-01-08T14:20:00Z",
+        "fulfillment": {
+          "warehouse_id": "STORE-001",
+          "warehouse_name": "Seattle Flagship Store",
+          "requested_ship_date": "2026-01-09",
+          "shipping_method": "ground"
+        },
+        "customer": {
+          "id": "CUST-998877",
+          "email": "robert.williams@example.com",
+          "phone": "+1-425-555-0167"
+        },
+        "shipping_address": {
+          "name": "Robert Williams",
+          "company": null,
+          "address1": "789 Cedar Lane",
+          "address2": null,
+          "city": "Portland",
+          "state": "OR",
+          "postal_code": "97201",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "Robert Williams",
+          "address1": "789 Cedar Lane",
+          "city": "Portland",
+          "state": "OR",
+          "postal_code": "97201",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-55667",
+            "name": "Winter Jacket",
+            "quantity": 1,
+            "unit_price": 199.99,
+            "weight_oz": 32,
+            "dimensions": {
+              "length_in": 16,
+              "width_in": 14,
+              "height_in": 4
+            },
+            "attributes": {
+              "fragile": false,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 199.99,
+          "tax": 18.00,
+          "shipping": 0.00,
+          "discount": 19.99,
+          "total": 198.00
+        },
+        "metadata": {
+          "source": "pos",
+          "store_id": "STORE-001",
+          "associate_id": "EMP-456",
+          "is_gift": false,
+          "customer_notes": "Size Large was not in store, shipping from DC",
+          "internal_notes": "Customer paid in store, free shipping"
+        }
+      }
+    },
+    {
+      "description": "Rush Order - High Priority",
+      "order": {
+        "order_id": "ORD-2026-001239",
+        "order_number": "WEB-20260108-5680",
+        "type": "ecommerce",
+        "status": "pending",
+        "priority": "rush",
+        "created_at": "2026-01-08T13:30:00Z",
+        "updated_at": "2026-01-08T13:30:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-WEST-01",
+          "warehouse_name": "Seattle Distribution Center",
+          "requested_ship_date": "2026-01-08",
+          "shipping_method": "overnight"
+        },
+        "customer": {
+          "id": "CUST-334455",
+          "email": "urgent@example.com",
+          "phone": "+1-310-555-0199"
+        },
+        "shipping_address": {
+          "name": "Emergency Contact",
+          "company": null,
+          "address1": "555 Urgent Ave",
+          "address2": null,
+          "city": "Los Angeles",
+          "state": "CA",
+          "postal_code": "90001",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "Emergency Contact",
+          "address1": "555 Urgent Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postal_code": "90001",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-88990",
+            "name": "Critical Component",
+            "quantity": 1,
+            "unit_price": 299.99,
+            "weight_oz": 8,
+            "dimensions": {
+              "length_in": 6,
+              "width_in": 4,
+              "height_in": 2
+            },
+            "attributes": {
+              "fragile": true,
+              "hazmat": false,
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 299.99,
+          "tax": 27.00,
+          "shipping": 45.00,
+          "discount": 0.00,
+          "total": 371.99
+        },
+        "metadata": {
+          "source": "web",
+          "is_gift": false,
+          "customer_notes": "URGENT - Need by tomorrow morning",
+          "internal_notes": "Rush processing - ship same day if possible",
+          "signature_required": true,
+          "sla_deadline": "2026-01-09T10:00:00Z"
+        }
+      }
+    },
+    {
+      "description": "Hazmat Item Order",
+      "order": {
+        "order_id": "ORD-2026-001240",
+        "order_number": "WEB-20260108-5681",
+        "type": "ecommerce",
+        "status": "pending",
+        "priority": "standard",
+        "created_at": "2026-01-08T15:45:00Z",
+        "updated_at": "2026-01-08T15:45:00Z",
+        "fulfillment": {
+          "warehouse_id": "DC-CENTRAL-02",
+          "warehouse_name": "Chicago Distribution Center",
+          "requested_ship_date": "2026-01-09",
+          "shipping_method": "ground"
+        },
+        "customer": {
+          "id": "CUST-112233",
+          "email": "homeowner@example.com",
+          "phone": "+1-312-555-0177"
+        },
+        "shipping_address": {
+          "name": "Jane Miller",
+          "company": null,
+          "address1": "999 Suburban Drive",
+          "address2": null,
+          "city": "Chicago",
+          "state": "IL",
+          "postal_code": "60601",
+          "country": "US",
+          "is_residential": true
+        },
+        "billing_address": {
+          "name": "Jane Miller",
+          "address1": "999 Suburban Drive",
+          "city": "Chicago",
+          "state": "IL",
+          "postal_code": "60601",
+          "country": "US"
+        },
+        "items": [
+          {
+            "line_item_id": "LINE-001",
+            "sku": "PROD-HAZ-123",
+            "name": "Spray Paint Set (6 cans)",
+            "quantity": 1,
+            "unit_price": 49.99,
+            "weight_oz": 96,
+            "dimensions": {
+              "length_in": 12,
+              "width_in": 8,
+              "height_in": 10
+            },
+            "attributes": {
+              "fragile": false,
+              "hazmat": true,
+              "hazmat_class": "aerosols",
+              "temperature_controlled": false
+            }
+          }
+        ],
+        "totals": {
+          "subtotal": 49.99,
+          "tax": 4.50,
+          "shipping": 15.00,
+          "discount": 0.00,
+          "total": 69.49
+        },
+        "metadata": {
+          "source": "web",
+          "is_gift": false,
+          "customer_notes": null,
+          "internal_notes": "HAZMAT - Ground shipping only, UPS or FedEx only",
+          "shipping_restrictions": ["air_prohibited", "ups_or_fedex_only"]
+        }
+      }
+    }
+  ],
+  "notes": {
+    "order_volumes": {
+      "retail": "~5,000/day",
+      "ecommerce": "~35,000/day",
+      "b2b": "~500/day",
+      "marketplace": "~8,000/day",
+      "gift": "~2,000/day"
+    },
+    "common_patterns": {
+      "gift_orders": "Always have is_gift=true and usually include gift_message",
+      "marketplace_orders": "Often have tight SLA deadlines and is_prime flags",
+      "b2b_orders": "Typically larger quantities, different payment terms",
+      "rush_orders": "Have priority=rush and same-day or next-day shipping",
+      "hazmat": "Require specific carriers and ground shipping only"
+    },
+    "data_quality_issues": {
+      "phone_numbers": "Sometimes missing for marketplace orders",
+      "dimensions": "Occasionally missing or incorrect",
+      "weight": "Usually accurate but sometimes estimated",
+      "address_validation": "Not always done before order creation"
+    }
+  }
+}

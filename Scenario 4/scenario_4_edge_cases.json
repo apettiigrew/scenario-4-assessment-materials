@@ -1,0 +1,531 @@
+{
+  "edge_cases": [
+    {
+      "case_name": "Missing Required Field - orderNumber",
+      "order": {
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Missing required field: orderNumber'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Missing Required Nested Field - customer.fullName",
+      "order": {
+        "orderNumber": "ORD-EDGE-001",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Missing required field: customer.fullName'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Empty Items Array",
+      "order": {
+        "orderNumber": "ORD-EDGE-002",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Order must have at least one item'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Negative Quantity",
+      "order": {
+        "orderNumber": "ORD-EDGE-003",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": -1,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Quantity must be greater than 0'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Zero Weight",
+      "order": {
+        "orderNumber": "ORD-EDGE-004",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 0,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Weight must be greater than 0'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Negative Weight",
+      "order": {
+        "orderNumber": "ORD-EDGE-005",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": -16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Weight must be greater than 0'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Invalid Dimension Format - Only Two Numbers",
+      "order": {
+        "orderNumber": "ORD-EDGE-006",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10x8"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Invalid dimension format'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Invalid Dimension Format - Not Numbers",
+      "order": {
+        "orderNumber": "ORD-EDGE-007",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "AxBxC"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Invalid dimension format'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Zero Dimension",
+      "order": {
+        "orderNumber": "ORD-EDGE-008",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10x0x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'All dimensions must be greater than 0'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Invalid Email Format",
+      "order": {
+        "orderNumber": "ORD-EDGE-009",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "email": "not-an-email",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error: 'Invalid email format'",
+      "error_type": "ValidationError"
+    },
+    {
+      "case_name": "Very Large Weight (Edge of Reasonable)",
+      "order": {
+        "orderNumber": "ORD-EDGE-010",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Very Heavy Item",
+            "qty": 1,
+            "weight_oz": 9600,
+            "dims": "48x48x48"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "FREIGHT"
+      },
+      "expected_behavior": "Should transform successfully (9600 oz = 600 lbs)",
+      "note": "Testing large but valid weight"
+    },
+    {
+      "case_name": "Very Small Weight (Fractional Ounces)",
+      "order": {
+        "orderNumber": "ORD-EDGE-011",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Very Light Item",
+            "qty": 1,
+            "weight_oz": 0.5,
+            "dims": "2x2x1"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "OVERNIGHT"
+      },
+      "expected_behavior": "Should transform successfully (0.5 oz = 0.03125 lbs)",
+      "note": "Testing fractional ounce weight"
+    },
+    {
+      "case_name": "Dimension String with Inconsistent Spacing",
+      "order": {
+        "orderNumber": "ORD-EDGE-012",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10 x8x 6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should parse successfully as {length: 10, width: 8, height: 6}",
+      "note": "Testing inconsistent spacing in dimensions"
+    },
+    {
+      "case_name": "Dimension String with Tabs",
+      "order": {
+        "orderNumber": "ORD-EDGE-013",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "10\tx\t8\tx\t6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should parse successfully as {length: 10, width: 8, height: 6}",
+      "note": "Testing tabs in dimensions"
+    },
+    {
+      "case_name": "All String Fields with Leading/Trailing Whitespace",
+      "order": {
+        "orderNumber": "  ORD-EDGE-014  ",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "  CUST-001  ",
+          "fullName": "  Test User  ",
+          "email": "  test@example.com  ",
+          "shippingAddr": {
+            "street1": "  123 Test St  ",
+            "street2": "  Apt 1  ",
+            "city": "  Test City  ",
+            "state": "  CA  ",
+            "zip": "  90001  ",
+            "country": "  US  "
+          }
+        },
+        "items": [
+          {
+            "sku": "  TEST-001  ",
+            "description": "  Test Item  ",
+            "qty": 1,
+            "weight_oz": 16,
+            "dims": "  10x8x6  "
+          }
+        ],
+        "shipFromWarehouse": "  DC-01  ",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "  GROUND  "
+      },
+      "expected_behavior": "Should trim all whitespace and transform successfully",
+      "note": "Testing whitespace handling"
+    },
+    {
+      "case_name": "Decimal Quantity (Should Fail)",
+      "order": {
+        "orderNumber": "ORD-EDGE-015",
+        "orderDate": "2026-01-14T10:00:00Z",
+        "customer": {
+          "custId": "CUST-001",
+          "fullName": "Test User",
+          "shippingAddr": {
+            "street1": "123 Test St",
+            "city": "Test City",
+            "state": "CA",
+            "zip": "90001",
+            "country": "US"
+          }
+        },
+        "items": [
+          {
+            "sku": "TEST-001",
+            "description": "Test Item",
+            "qty": 1.5,
+            "weight_oz": 16,
+            "dims": "10x8x6"
+          }
+        ],
+        "shipFromWarehouse": "DC-01",
+        "requestedShipDate": "2026-01-15",
+        "serviceLevel": "GROUND"
+      },
+      "expected_behavior": "Should throw error or handle as integer: 'Quantity must be a whole number'",
+      "note": "Quantities should be integers"
+    }
+  ],
+  "notes": {
+    "validation_priorities": [
+      "1. Check for required fields first",
+      "2. Validate data types and formats",
+      "3. Check business logic constraints (positive numbers, etc.)",
+      "4. Parse and validate complex fields (dimensions, email)",
+      "5. Normalize data (trim whitespace, uppercase country codes)"
+    ],
+    "error_message_guidelines": [
+      "Include field name in error message",
+      "Be specific about what's wrong",
+      "Don't expose internal implementation details",
+      "Help the developer fix the issue"
+    ],
+    "edge_case_categories": {
+      "missing_data": "Missing required fields, empty arrays",
+      "invalid_format": "Bad dimension strings, invalid emails",
+      "invalid_values": "Negative numbers, zero values",
+      "data_quality": "Extra whitespace, mixed case",
+      "boundary_conditions": "Very large/small values, fractional numbers"
+    }
+  }
+}
