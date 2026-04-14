@@ -1,34 +1,6 @@
-/**
- * Customer OMS order (input). Some fields are optional in real payloads.
- */
-export interface CustomerOrder {
-  orderNumber: string;
-  orderDate: string;
-  customer: {
-    custId: string;
-    fullName: string;
-    email?: string;
-    phone?: string;
-    shippingAddr: {
-      street1: string;
-      street2?: string;
-      city: string;
-      state: string;
-      zip: string;
-      country: string;
-    };
-  };
-  items: Array<{
-    sku: string;
-    description: string;
-    qty: number;
-    weight_oz: number;
-    dims: string;
-  }>;
-  shipFromWarehouse: string;
-  requestedShipDate: string;
-  serviceLevel: string;
-}
+import type { CustomerOrder } from './schema';
+
+export type { CustomerOrder } from './schema';
 
 /**
  * Shipium API order payload (output).

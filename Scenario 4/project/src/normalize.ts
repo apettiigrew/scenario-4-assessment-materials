@@ -36,13 +36,19 @@ export function normalizeCustomerOrder(raw: CustomerOrder): CustomerOrder {
         country: trimString(raw.customer?.shippingAddr?.country),
       },
     },
-    items: (raw.items ?? []).map((item) => ({
-      sku: trimString(item?.sku),
-      description: trimString(item?.description),
-      qty: item?.qty as number,
-      weight_oz: item?.weight_oz as number,
-      dims: trimString(item?.dims),
-    })),
+    items: (raw.items ?? []).map((item) => {
+      const rawItem = item as Record<string, unknown>;
+      const dimsValue = rawItem.dims ?? rawItem.dimensions;
+
+      return {
+        sku: trimString(rawItem.sku),
+        description: trimString(rawItem.description),
+        qty: (rawItem.qty ?? rawItem.quantity) as number,
+        weight_oz: (rawItem.weight_oz ?? rawItem.weight) as number,
+        dims: trimString(dimsValue),
+        price: rawItem.price as number | undefined,
+      };
+    }),
     shipFromWarehouse: trimString(raw.shipFromWarehouse),
     requestedShipDate: trimString(raw.requestedShipDate),
     serviceLevel: trimString(raw.serviceLevel),
